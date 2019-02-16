@@ -1,0 +1,108 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /home/luis/repos/stata-rcallcountrycode/benchmark/benchmark_linux.log
+  log type:  text
+ opened on:  16 Feb 2019, 23:21:23
+
+. 
+. which rcallcountrycode
+/home/luis/ado/plus/r/rcallcountrycode.ado
+*! version 0.1.0 16feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! -rcallcountrycode- Call R's countrycode package from Stata using rcall
+
+. which kountry
+/home/luis/ado/plus/k/kountry.ado
+*! version 2.1.6  12aug2013
+
+. 
+. * list of countries from https://gist.github.com/kalinchernev/486393efcca01623b18d
+. import delimited list_of_countries.csv, clear varnames(1)
+(1 var, 196 obs)
+
+. save list_of_countries, replace
+file list_of_countries.dta saved
+
+. 
+. timer clear
+
+. 
+. * doing with a list of countries, each country once, 196 observations
+. describe, short
+
+Contains data from list_of_countries.dta
+  obs:           196                          
+ vars:             1                          16 Feb 2019 23:21
+ size:         5,880                          
+Sorted by: 
+
+. timeit 1: qui rcallcountrycode country, from(country.name.en) to(country.name.en) gen(r_name) marker
+
+. timeit 2: qui kountry country, from(other) marker
+NAMES_STD MARKER
+. timer list
+   1:      2.06 /        1 =       2.0570
+   2:      0.01 /        1 =       0.0150
+
+. 
+. * compare results. lowercase is rcallcountrycode; uppercase is kountry
+. tab marker MARKER
+
+           |        MARKER
+    marker |         0          1 |     Total
+-----------+----------------------+----------
+         0 |         1          1 |         2 
+         1 |         5        189 |       194 
+-----------+----------------------+----------
+     Total |         6        190 |       196 
+
+. 
+. * now with the same list, duplicated many times, as in a large dataset
+. * 392k rows with 196 countries. with gtools and ftools installed
+. clear
+
+. forvalues k = 1/2000 {
+  2.         append using list_of_countries
+  3. }
+
+. 
+. * compare results
+. describe, short
+
+Contains data
+  obs:       392,000                          
+ vars:             1                          
+ size:    11,760,000                          
+Sorted by: 
+     Note: Dataset has changed since last saved.
+
+. timeit 3: qui rcallcountrycode country, from(country.name.en) to(country.name.en) gen(r_name) marker
+
+. timeit 4: qui kountry country, from(other) marker
+NAMES_STD MARKER
+. timer list
+   1:      2.06 /        1 =       2.0570
+   2:      0.01 /        1 =       0.0150
+   3:      2.67 /        1 =       2.6680
+   4:     21.11 /        1 =      21.1150
+
+. 
+. * Compare relative performances as dataset increases 2000 times:
+. di "rcallcountrycode's time of execution increased by a relative factor of"
+rcallcountrycode's time of execution increased by a relative factor of
+
+. di r(t3)/r(t1) - 1
+.29703452
+
+. di "rcallcountrycode's time of execution increased by a relative factor of"
+rcallcountrycode's time of execution increased by a relative factor of
+
+. di r(t4)/r(t2) - 1
+1406.6667
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /home/luis/repos/stata-rcallcountrycode/benchmark/benchmark_linux.log
+  log type:  text
+ closed on:  16 Feb 2019, 23:21:52
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

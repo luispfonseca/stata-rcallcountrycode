@@ -18,8 +18,16 @@ I'd like to thank the authors of both packages:
 There are a few advantages to using `rcallcountrycode` relative to `kountry`:
 
 * it gets the functionalities of [`countrycode`](https://github.com/vincentarelbundock/countrycode) for R, which might have broader and more up-to-date coverage on country names in different formats and languages
-* it scales well with the size of the dataset. 
-	* Because it asks R to convert only the unique strings in the dataset (which should not exceed the number of countries in the world in most use cases), applying it to a dataset of 200 or 200000 observations makes little difference. The current version of `kountry` does not scale well in large datasets.
+* it scales well with the size of the dataset. See [the benchmark](benchmark/benchmark.log) for a comparison between `rcallcountrycode` and `kountry`. 
+	* Because it asks R to convert only the unique strings in the dataset (which should not exceed the number of countries in the world in most use cases), applying it to a dataset of 200 or 200000 observations makes little difference. The current version of `kountry` does not scale well in large datasets. 
+	* In the current benchmark, I add repeated country names 2000 times to a list of 196 countries.  `rcallcountrycode`, which is much slower in the small dataset, only takes around 13%/30% (Win7/Linux) longer to run in the larger dataset. `kountry` takes almost 1000/1400 (Win7/Linux) *times* longer than it does in the small dataset. 
+
+|              Machine             |        Dataset       | `rcallcountrycode` | `kountry` |
+|:--------------------------------:|:--------------------:|:------------------:|:---------:|
+|  Win 7, 4-core 3.60GHz, 32GB RAM |     196 countries    |      4.66 sec      |  0.02 sec |
+|  Win 7, 4-core 3.60GHz, 32GB RAM | 196 countries x 2000 |      5.26 sec      | 17.43 sec |
+| Ubuntu, 2-core 2.20GHz, 16GB RAM |     196 countries    |      2.06 sec      |  0.01 sec |
+| Ubuntu, 2-core 2.20GHz, 16GB RAM | 196 countries x 2000 |      2.67 sec      | 21.11 sec |
 
 The main disadvantage is that `rcallcountrycode` requires additional dependencies, while `kountry` can be run directly after installing it from SSC without any additional work.
 
