@@ -12,7 +12,7 @@ program define rcallcountrycode
 		di as error "The following commands should work:"
 		di as error `"net install github, from("https://haghish.github.io/github/") replace"'
 		di as error "gitget rcall"
-		exit
+		error
 	}
 	else { // additional checks of dependencies
 		rcall_check countrycode>=1.1.0, r(2.10) rcall(1.3.3)
@@ -25,7 +25,7 @@ program define rcallcountrycode
 	local numargs : word count `anything'
 	if `numargs' != 1 {
 		di as error "pass only one variable"
-		exit
+		error
 	}
 
 	* if passed, calling codelist from R. passed the same way as a variable to simplify syntax. inelegant (to do: move option to after the comma, requiring no variable passed)
@@ -33,7 +33,7 @@ program define rcallcountrycode
 		capture confirm variable codelist
 		if !c(rc) {
 			di as error "You already have a variable named codelist. Please rename it or drop it if you want to call the codelist option"
-			exit
+			error
 		}
 
 		* call R
@@ -42,7 +42,7 @@ program define rcallcountrycode
 		codelisttext = utils:::.getHelpFile(help(codelist)); ///
 		print(codelisttext)
 
-		exit
+		error
 	}
 
 	* if here, codelist was not passed. Thus, require passing of some of the options
@@ -55,14 +55,14 @@ program define rcallcountrycode
 	capture confirm new variable `generate'
 	if c(rc) {
 		di as error "You already have a variable named `generate'. Please rename it or provide a different name to option gen(varname)"
-		exit
+		error
 	}
 	if "`marker'" != "" {
 		local markervar marker // could be changed to marker_`generate' for example
 		capture confirm new variable `markervar'
 		if c(rc) {
 			di as error "You already have a variable named `markervar'. Please rename it or drop it if you want to call the marker option"
-			exit
+			error
 		}
 	}
 
@@ -83,28 +83,33 @@ program define rcallcountrycode
 	}
 	qui `g'duplicates drop
 
+	export delimited _Rdatarcallcountrycode_in.csv, replace
+
 	* call R
 	di as result "Calling R..."
 	cap noi rcall vanilla: ///
 	library(countrycode); ///
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
-	data <- st.data(); ///
+	data <- read.csv("_Rdatarcallcountrycode_in.csv", fileEncoding = "utf8"); ///
 	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
-	write.csv(data, file= "_Rdatarcallcountrycode.csv", row.names=FALSE)
+	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8")
 	
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
-		exit
+		error
 	}
 
 	* import the csv (moved away from st.load() due to issue #1 with encodings and accents)
-	capture confirm file _Rdatarcallcountrycode.csv
+	capture confirm file _Rdatarcallcountrycode_out.csv
 	if c(rc) {
 		di as error "I could not find the file with the converted data. Something weird happen. Report to https://github.com/luispfonseca/stata-rcallcountrycode"
-		exit
+		error
 	}
-	qui import delimited _Rdatarcallcountrycode.csv, clear encoding("utf-8") varnames(1)
-	cap erase _Rdatarcallcountrycode.csv
+	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
+	cap erase _Rdatarcallcountrycode_in.csv
+	cap erase _Rdatarcallcountrycode_out.csv
+	* replace NAs with nothing
+	replace `generate' = "" if `generate' == "NA"
 
 	* create marker if option is called
 	if "`marker'" != "" {
