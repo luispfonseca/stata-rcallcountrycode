@@ -1,4 +1,4 @@
-*! version 0.1.1 17feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.2 17feb2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
@@ -90,12 +90,21 @@ program define rcallcountrycode
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
 	data <- st.data(); ///
 	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
-	st.load(data)
-
+	write.csv(data, file= "_Rdatarcallcountrycode.csv", row.names=FALSE)
+	
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
 		exit
 	}
+
+	* import the csv (moved away from st.load() due to issue #1 with encodings and accents)
+	capture confirm file _Rdatarcallcountrycode.csv
+	if c(rc) {
+		di as error "I could not find the file with the converted data. Something weird happen. Report to https://github.com/luispfonseca/stata-rcallcountrycode"
+		exit
+	}
+	qui import delimited _Rdatarcallcountrycode.csv, clear encoding("utf-8") varnames(1)
+	cap erase _Rdatarcallcountrycode.csv
 
 	* create marker if option is called
 	if "`marker'" != "" {
