@@ -70,7 +70,7 @@ program define rcallcountrycode
 	preserve
 
 	* prepare list of unique names to send; use gduplicates if possible
-	di "Preparing data to send to R"
+	di as result "Preparing data to send to R"
 	tokenize "`anything'"
 	local namevar `1'
 	keep `namevar'
@@ -84,7 +84,7 @@ program define rcallcountrycode
 	qui `g'duplicates drop
 
 	* call R
-	di "Calling R..."
+	di as result "Calling R..."
 	cap noi rcall vanilla: ///
 	library(countrycode); ///
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
@@ -110,13 +110,13 @@ program define rcallcountrycode
 	* show diagnostic if any non-matches
 	qui keep if mi(`generate') & !mi(`namevar')
 	if _N > 0 {
-		di "countrycode could not find unique matches for the following cases:"
+		di as result "countrycode could not find unique matches for the following cases:"
 		list `namevar'
-		di "If no error happened, then it likely found either 0 matches or more than 1 for these cases"
+		di as result "If no error happened, then it likely found either 0 matches or more than 1 for these cases"
 	}
 
 	* merge results
-	di "Merging the data"
+	di as result "Merging the data"
 	restore
 	* use fmerge if it exists and dataset is large enough
 	cap which fmerge
