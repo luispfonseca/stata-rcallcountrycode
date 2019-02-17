@@ -32,12 +32,12 @@ There are a few advantages to using `rcallcountrycode` relative to `kountry`:
 The main disadvantage is that `rcallcountrycode` requires additional dependencies, while `kountry` can be run directly after installing it from SSC without any additional work.
 
 ## Install
+Run:
 ```
 cap ado uninstall rcallcountrycode
 net install rcallcountrycode, from("https://raw.githubusercontent.com/luispfonseca/stata-rcallcountrycode/master/")
 ```
-
-Alternatively, if you have installed [haghish's github package for stata](https://github.com/haghish/github), just execute:
+You also need to install the dependencies. You can make it easier if you have installed [Haghish's github package for stata](https://github.com/haghish/github). Make sure you have installed R first (see below how). `github install` will install the required dependencies of `rcallcountrycode`, including those in R. Just run:
 ```
 github install luispfonseca/stata-rcallcountrycode
 ```
