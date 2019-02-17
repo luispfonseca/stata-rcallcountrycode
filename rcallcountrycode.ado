@@ -1,9 +1,9 @@
-*! version 0.1.0 16feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.1 17feb2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
 	
-	syntax varname(max=1), From(string) To(string) GENerate(string) [Marker]
+	syntax anything, [From(string) To(string) GENerate(string) Marker]
 
 	* confirm that rcall is installed
 	cap which rcall
@@ -21,10 +21,40 @@ program define rcallcountrycode
 		// 1.3.3 is the current version of rcall. have not tested earlier versions
 	}
 
+	* check only one variable is passed
+	local numargs : word count `anything'
+	if `numargs' != 1 {
+		di as error "pass only one variable"
+		exit
+	}
+
+	* if passed, calling codelist from R. passed the same way as a variable to simplify syntax. inelegant (to do: move option to after the comma, requiring no variable passed)
+	if "`anything'" == "codelist" {
+		capture confirm variable codelist
+		if !c(rc) {
+			di as error "You already have a variable named codelist. Please rename it or drop it if you want to call the codelist option"
+			exit
+		}
+
+		* call R
+		rcall vanilla: ///
+		library(countrycode); ///
+		codelisttext = utils:::.getHelpFile(help(codelist)); ///
+		print(codelisttext)
+
+		exit
+	}
+
+	* if here, codelist was not passed. Thus, require passing of some of the options
+	if "`from'" == "" | "`to'" == "" | "`generate'" == "" {
+		di as error "options from(), to() and generate() are required"
+    	error 198
+	}
+
 	* avoid naming conflicts
 	capture confirm new variable `generate'
 	if c(rc) {
-		di as error "You already have a variable named `generate'. Please rename it or use option gen(varname)"
+		di as error "You already have a variable named `generate'. Please rename it or provide a different name to option gen(varname)"
 		exit
 	}
 	if "`marker'" != "" {
@@ -41,7 +71,7 @@ program define rcallcountrycode
 
 	* prepare list of unique names to send; use gduplicates if possible
 	di "Preparing data to send to R"
-	tokenize "`varlist'"
+	tokenize "`anything'"
 	local namevar `1'
 	keep `namevar'
 	cap which gduplicates

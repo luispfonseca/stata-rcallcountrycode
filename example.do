@@ -25,3 +25,6 @@ rcallcountrycode country, from(country.name) to(iso3c) gen(iso3code)
 
 * get the country names in german
 rcallcountrycode country, from(country.name) to(country.name.de) gen(countryname_de)
+
+* get list of available codes from R
+rcallcountrycode codelist
