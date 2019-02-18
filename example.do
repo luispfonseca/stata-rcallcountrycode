@@ -25,7 +25,7 @@ compress
 rcallcountrycode country, from(country.name) to(country.name) gen(countryname_en) marker
 
 * get the ISO2 country codes
-rcallcountrycode country, from(country.name) to(iso2c) gen(iso3code)
+rcallcountrycode country, from(country.name) to(iso2c) gen(iso2code)
 
 * get the country names in german
 rcallcountrycode country, from(country.name) to(country.name.de) gen(countryname_de)
