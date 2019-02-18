@@ -2,10 +2,48 @@
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
+	version 14
 	
 	syntax anything, [From(string) To(string) GENerate(string) Marker]
 
-	* confirm that rcall is installed
+	* check only one variable is passed
+	local numargs : word count `anything'
+	if `numargs' != 1 {
+		di as error "pass only one variable"
+		error
+	}
+
+	* if codelist not passed, require passing of some of the options
+	if "`anything'" != "codelist" & ("`from'" == "" | "`to'" == "" | "`generate'" == "") {
+		di as error "options from(), to() and generate() are required"
+    	error 198
+	}
+
+	* avoid naming conflicts
+	capture confirm new variable `generate'
+	if c(rc) & "`anything'" != "codelist" {
+		di as error "You already have a variable named `generate'. Please rename it or provide a different name to option gen(varname)"
+		error
+	}
+	if "`marker'" != "" & "`anything'" != "codelist" {
+		local markervar marker // could be changed to marker_`generate' for example
+		capture confirm new variable `markervar'
+		if c(rc) {
+			di as error "You already have a variable named `markervar'. Please rename it or drop it if you want to call the marker option"
+			error
+		}
+	}
+
+	if "`anything'" == "codelist" {
+		capture confirm variable codelist
+		if !c(rc) {
+			di as error "You already have a variable named codelist. Please rename it or drop it if you want to call the codelist option"
+			error
+		}
+	}
+
+
+	* confirm that rcall is installed only after all errors and conflicts checked
 	cap which rcall
 	if c(rc) {
 		di as error "The package Rcall is required for this package to work. Follow the instructions in https://github.com/haghish/rcall"
@@ -21,49 +59,16 @@ program define rcallcountrycode
 		// 1.3.3 is the current version of rcall. have not tested earlier versions
 	}
 
-	* check only one variable is passed
-	local numargs : word count `anything'
-	if `numargs' != 1 {
-		di as error "pass only one variable"
-		error
-	}
 
 	* if passed, calling codelist from R. passed the same way as a variable to simplify syntax. inelegant (to do: move option to after the comma, requiring no variable passed)
 	if "`anything'" == "codelist" {
-		capture confirm variable codelist
-		if !c(rc) {
-			di as error "You already have a variable named codelist. Please rename it or drop it if you want to call the codelist option"
-			error
-		}
-
 		* call R
 		rcall vanilla: ///
 		library(countrycode); ///
-		codelisttext = utils:::.getHelpFile(help(codelist)); ///
+		codelisttext <- utils:::.getHelpFile(help(codelist)); ///
 		print(codelisttext)
 
-		error
-	}
-
-	* if here, codelist was not passed. Thus, require passing of some of the options
-	if "`from'" == "" | "`to'" == "" | "`generate'" == "" {
-		di as error "options from(), to() and generate() are required"
-    	error 198
-	}
-
-	* avoid naming conflicts
-	capture confirm new variable `generate'
-	if c(rc) {
-		di as error "You already have a variable named `generate'. Please rename it or provide a different name to option gen(varname)"
-		error
-	}
-	if "`marker'" != "" {
-		local markervar marker // could be changed to marker_`generate' for example
-		capture confirm new variable `markervar'
-		if c(rc) {
-			di as error "You already have a variable named `markervar'. Please rename it or drop it if you want to call the marker option"
-			error
-		}
+		exit
 	}
 
 	* preserve dataset to later merge
@@ -83,7 +88,7 @@ program define rcallcountrycode
 	}
 	qui `g'duplicates drop
 
-	export delimited _Rdatarcallcountrycode_in.csv, replace
+	qui export delimited _Rdatarcallcountrycode_in.csv, replace
 
 	* call R
 	di as result "Calling R..."
@@ -102,7 +107,7 @@ program define rcallcountrycode
 	* import the csv (moved away from st.load() due to issue #1 with encodings and accents)
 	capture confirm file _Rdatarcallcountrycode_out.csv
 	if c(rc) {
-		di as error "I could not find the file with the converted data. Something weird happen. Report to https://github.com/luispfonseca/stata-rcallcountrycode"
+		di as error "I could not find the file with the converted data. Something weird happened. Report to https://github.com/luispfonseca/stata-rcallcountrycode"
 		error
 	}
 	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
