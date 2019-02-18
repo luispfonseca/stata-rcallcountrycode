@@ -10,27 +10,27 @@ program define rcallcountrycode
 	local numargs : word count `anything'
 	if `numargs' != 1 {
 		di as error "pass only one variable"
-		error
+		error 103
 	}
 
 	* if codelist not passed, require passing of some of the options
 	if "`anything'" != "codelist" & ("`from'" == "" | "`to'" == "" | "`generate'" == "") {
 		di as error "options from(), to() and generate() are required"
-    	error 198
+    	qui error 198
 	}
 
 	* avoid naming conflicts
 	capture confirm new variable `generate'
 	if c(rc) & "`anything'" != "codelist" {
 		di as error "You already have a variable named `generate'. Please rename it or provide a different name to option gen(varname)"
-		error
+		error 198
 	}
 	if "`marker'" != "" & "`anything'" != "codelist" {
 		local markervar marker // could be changed to marker_`generate' for example
 		capture confirm new variable `markervar'
 		if c(rc) {
 			di as error "You already have a variable named `markervar'. Please rename it or drop it if you want to call the marker option"
-			error
+			error 198
 		}
 	}
 
@@ -38,7 +38,7 @@ program define rcallcountrycode
 		capture confirm variable codelist
 		if !c(rc) {
 			di as error "You already have a variable named codelist. Please rename it or drop it if you want to call the codelist option"
-			error
+			error 198
 		}
 	}
 
@@ -50,7 +50,7 @@ program define rcallcountrycode
 		di as error "The following commands should work:"
 		di as error `"net install github, from("https://haghish.github.io/github/") replace"'
 		di as error "gitget rcall"
-		error
+		error 9
 	}
 	else { // additional checks of dependencies
 		rcall_check countrycode>=1.1.0, r(2.10) rcall(1.3.3)
@@ -71,8 +71,9 @@ program define rcallcountrycode
 		exit
 	}
 
-	* preserve dataset to later merge
-	preserve
+	* store dataset to later merge, or restore if error
+	tempfile origdata
+	qui save "`origdata'", replace
 
 	* prepare list of unique names to send; use gduplicates if possible
 	di as result "Preparing data to send to R"
@@ -87,6 +88,7 @@ program define rcallcountrycode
 		di "The gtools package is not required, but it is recommended for speed gains. To install, follow the instructions in https://github.com/mcaceresb/stata-gtools"
 	}
 	qui `g'duplicates drop
+	drop if mi(`namevar')
 
 	qui export delimited _Rdatarcallcountrycode_in.csv, replace
 
@@ -101,14 +103,17 @@ program define rcallcountrycode
 	
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
-		error
+		di as error "Restoring original data"
+		use "`origdata'", clear
+		error 
 	}
 
 	* import the csv (moved away from st.load() due to issue #1 with encodings and accents)
 	capture confirm file _Rdatarcallcountrycode_out.csv
 	if c(rc) {
-		di as error "I could not find the file with the converted data. Something weird happened. Report to https://github.com/luispfonseca/stata-rcallcountrycode"
-		error
+		di as error "Restoring original data because file with the converted data was not found. Report to https://github.com/luispfonseca/stata-rcallcountrycode/issues"
+		use "`origdata'", clear
+		error 601
 	}
 	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
 	cap erase _Rdatarcallcountrycode_in.csv
@@ -134,7 +139,7 @@ program define rcallcountrycode
 
 	* merge results
 	di as result "Merging the data"
-	restore
+	use "`origdata'", clear
 	* use fmerge if it exists and dataset is large enough
 	cap which fmerge
 	if !c(rc) & _N > 100000 {
@@ -144,12 +149,27 @@ program define rcallcountrycode
 		tempvar numobs
 		gen `numobs' = _n 
 	}
-	qui `f'merge m:1 `namevar' using "`Routput'", nogenerate assert(match)
+	qui `f'merge m:1 `namevar' using "`Routput'"
 
+	* check merging occurred as expected
+	cap assert _merge == 3 | (_merge == 1 & mi(`namevar')) // asserts proper matching: everything matched, except for empty inputs
+	if c(rc) == 9 { // more helpful message if assertion fails
+		di as error "Merging of data did not work as expected. Please provide a minimal working example at https://github.com/luispfonseca/stata-rcallcountrycode/issues"
+		di as error "There was a problem with these entries:"
+		tab `namevar' if !(_merge == 3 | (_merge == 1 & mi(`namevar')))
+		di as error "Restoring original data"
+		use "`origdata'", clear
+		error 9
+	}
+
+	drop _merge
+
+	* restore original sort when calling merge
 	if "`f'" == "" {
 		sort `numobs'
 	}
 
 	cap erase "`Routput'"
+	cap erase "`origdata'"
 	
 end
