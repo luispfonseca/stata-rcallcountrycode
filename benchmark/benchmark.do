@@ -3,7 +3,6 @@ qui do ../rcallcountrycode.ado
 
 log using benchmark.log, replace
 
-which rcallcountrycode
 which kountry
 
 * list of countries from https://gist.github.com/kalinchernev/486393efcca01623b18d

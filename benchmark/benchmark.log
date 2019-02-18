@@ -1,29 +1,29 @@
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  D:\repos\stata-rcallcountrycode\benchmark\benchmark.log
   log type:  text
- opened on:  16 Feb 2019, 23:19:41
+ opened on:  18 Feb 2019, 13:37:24
+r; t=0.00 13:37:24
 
 . 
-. which rcallcountrycode
-c:\ado\plus\r\rcallcountrycode.ado
-*! version 0.1.0 16feb2019 Luís Fonseca, https://github.com/luispfonseca
-*! -rcallcountrycode- Call R's countrycode package from Stata using Rcall
-
 . which kountry
 c:\ado\plus\k\kountry.ado
 *! version 2.1.6  12aug2013
+r; t=0.00 13:37:24
 
 . 
 . * list of countries from https://gist.github.com/kalinchernev/486393efcca01623b18d
 . import delimited list_of_countries.csv, clear varnames(1)
 (1 var, 196 obs)
+r; t=0.14 13:37:24
 
 . save list_of_countries, replace
 file list_of_countries.dta saved
+r; t=0.01 13:37:24
 
 . 
 . timer clear
+r; t=0.00 13:37:24
 
 . 
 . * doing with a list of countries, each country once, 196 observations
@@ -31,17 +31,21 @@ file list_of_countries.dta saved
 
 Contains data from list_of_countries.dta
   obs:           196                          
- vars:             1                          16 Feb 2019 23:19
+ vars:             1                          18 Feb 2019 13:37
  size:         5,880                          
 Sorted by: 
+r; t=0.00 13:37:24
 
 . timeit 1: qui rcallcountrycode country, from(country.name.en) to(country.name.en) gen(r_name) marker
+r; t=4.23 13:37:28
 
 . timeit 2: qui kountry country, from(other) marker
-NAMES_STD MARKER
+NAMES_STD MARKERr; t=0.02 13:37:28
+
 . timer list
-   1:      4.66 /        1 =       4.6640
+   1:      4.23 /        1 =       4.2290
    2:      0.02 /        1 =       0.0160
+r; t=0.00 13:37:28
 
 . 
 . * compare results. lowercase is rcallcountrycode; uppercase is kountry
@@ -55,15 +59,18 @@ NAMES_STD MARKER
 -----------+----------------------+----------
      Total |         6        190 |       196 
 
+r; t=0.00 13:37:28
 
 . 
 . * now with the same list, duplicated many times, as in a large dataset
 . * 392k rows with 196 countries. with gtools and ftools installed
 . clear
+r; t=0.00 13:37:28
 
 . forvalues k = 1/2000 {
   2.         append using list_of_countries
   3. }
+r; t=1.35 13:37:30
 
 . 
 . * compare results
@@ -75,35 +82,43 @@ Contains data
  size:    11,760,000                          
 Sorted by: 
      Note: Dataset has changed since last saved.
+r; t=0.00 13:37:30
 
 . timeit 3: qui rcallcountrycode country, from(country.name.en) to(country.name.en) gen(r_name) marker
+r; t=4.80 13:37:34
 
 . timeit 4: qui kountry country, from(other) marker
-NAMES_STD MARKER
+NAMES_STD MARKERr; t=18.39 13:37:53
+
 . timer list
-   1:      4.66 /        1 =       4.6640
+   1:      4.23 /        1 =       4.2290
    2:      0.02 /        1 =       0.0160
-   3:      5.26 /        1 =       5.2570
-   4:     17.43 /        1 =      17.4260
+   3:      4.80 /        1 =       4.8000
+   4:     18.39 /        1 =      18.3920
+r; t=0.00 13:37:53
 
 . 
 . * Compare relative performances as dataset increases 2000 times:
 . di "rcallcountrycode's time of execution increased by a relative factor of"
 rcallcountrycode's time of execution increased by a relative factor of
+r; t=0.00 13:37:53
 
 . di r(t3)/r(t1) - 1
-.12714408
+.1350201
+r; t=0.00 13:37:53
 
 . di "rcallcountrycode's time of execution increased by a relative factor of"
 rcallcountrycode's time of execution increased by a relative factor of
+r; t=0.00 13:37:53
 
 . di r(t4)/r(t2) - 1
-1088.125
+1148.5
+r; t=0.00 13:37:53
 
 . 
 . log close
       name:  <unnamed>
        log:  D:\repos\stata-rcallcountrycode\benchmark\benchmark.log
   log type:  text
- closed on:  16 Feb 2019, 23:20:10
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ closed on:  18 Feb 2019, 13:37:53
+------------------------------------------------------------------------------------------------------------------------------------------------------
