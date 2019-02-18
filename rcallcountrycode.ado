@@ -1,4 +1,4 @@
-*! version 0.1.4 18feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.5 18feb2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
@@ -88,7 +88,7 @@ program define rcallcountrycode
 		di "The gtools package is not required, but it is recommended for speed gains. To install, follow the instructions in https://github.com/mcaceresb/stata-gtools"
 	}
 	qui `g'duplicates drop
-	drop if mi(`namevar')
+	qui drop if mi(`namevar')
 
 	qui export delimited _Rdatarcallcountrycode_in.csv, replace
 
@@ -105,7 +105,11 @@ program define rcallcountrycode
 		di as error "Error when calling R. Check the error message above"
 		di as error "Restoring original data"
 		use "`origdata'", clear
+		cap erase "`origdata'"
 		error 
+	}
+	if "`debug'" == "" {
+		cap erase _Rdatarcallcountrycode_in.csv
 	}
 
 	* import the csv (moved away from st.load() due to issue #1 with encodings and accents)
@@ -113,11 +117,11 @@ program define rcallcountrycode
 	if c(rc) {
 		di as error "Restoring original data because file with the converted data was not found. Report to https://github.com/luispfonseca/stata-rcallcountrycode/issues"
 		use "`origdata'", clear
+		cap erase "`origdata'"
 		error 601
 	}
 	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
 	if "`debug'" == "" {
-		cap erase _Rdatarcallcountrycode_in.csv
 		cap erase _Rdatarcallcountrycode_out.csv
 	}
 
@@ -127,9 +131,8 @@ program define rcallcountrycode
 		qui replace `markervar' = 1 if !mi(`namevar') & !mi(`generate')
 	}
 
-	* store in temporary file
-	tempfile Routput
-	qui save "`Routput'"
+	* store in dta file
+	save _Rdatarcallcountrycode_instata, replace
 
 	* show diagnostic if any non-matches
 	qui keep if mi(`generate') & !mi(`namevar')
@@ -142,6 +145,7 @@ program define rcallcountrycode
 	* merge results
 	di as result "Merging the data"
 	use "`origdata'", clear
+
 	* use fmerge if it exists and dataset is large enough
 	cap which fmerge
 	if !c(rc) & _N > 100000 {
@@ -151,7 +155,11 @@ program define rcallcountrycode
 		tempvar numobs
 		gen `numobs' = _n 
 	}
-	qui `f'merge m:1 `namevar' using "`Routput'"
+	qui `f'merge m:1 `namevar' using _Rdatarcallcountrycode_instata
+
+	if "`debug'" == "" {
+		cap erase _Rdatarcallcountrycode_instata.dta
+	}
 
 	* check merging occurred as expected
 	cap assert _merge == 3 | (_merge == 1 & mi(`namevar')) // asserts proper matching: everything matched, except for empty inputs
@@ -161,6 +169,7 @@ program define rcallcountrycode
 		tab `namevar' if !(_merge == 3 | (_merge == 1 & mi(`namevar')))
 		di as error "Restoring original data"
 		use "`origdata'", clear
+		cap erase "`origdata'"
 		error 9
 	}
 
@@ -170,5 +179,7 @@ program define rcallcountrycode
 	if "`f'" == "" {
 		sort `numobs'
 	}
+
+	cap erase "`origdata'"
 
 end
