@@ -92,7 +92,7 @@ program define rcallcountrycode
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
 	data <- read.csv("_Rdatarcallcountrycode_in.csv", fileEncoding = "utf8"); ///
 	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
-	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8")
+	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8", na = "")
 	
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
@@ -108,8 +108,6 @@ program define rcallcountrycode
 	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
 	cap erase _Rdatarcallcountrycode_in.csv
 	cap erase _Rdatarcallcountrycode_out.csv
-	* replace NAs with nothing
-	replace `generate' = "" if `generate' == "NA"
 
 	* create marker if option is called
 	if "`marker'" != "" {
