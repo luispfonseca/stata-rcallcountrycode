@@ -1,12 +1,12 @@
 # RCALLCOUNTRYCODE: Call R's countrycode package from Stata using rcall
 - ***under development*** 
-- Current version: 0.1.3 18feb2019
+- Current version: 0.1.4 18feb2019
 - Contents: [`updates`](#updates) [`description`](#description) [`install`](#install) [`usage`](#usage) [`to do`](#to-do) [`author`](#author)
 
 -----------
 
 ## Updates
-* **0.1.3 18feb2019**  
+* **0.1.4 18feb2019**  
 (Since 0.1.0):
 	- bug fixes for encoding issues, diacritics
 	- improved error checking and handling

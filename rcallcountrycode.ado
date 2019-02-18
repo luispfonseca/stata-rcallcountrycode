@@ -1,10 +1,10 @@
-*! version 0.1.3 18feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.4 18feb2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
 	version 14
 	
-	syntax anything, [From(string) To(string) GENerate(string) Marker]
+	syntax anything, [From(string) To(string) GENerate(string) Marker debug]
 
 	* check only one variable is passed
 	local numargs : word count `anything'
@@ -97,7 +97,7 @@ program define rcallcountrycode
 	cap noi rcall vanilla: ///
 	library(countrycode); ///
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
-	data <- read.csv("_Rdatarcallcountrycode_in.csv", fileEncoding = "utf8"); ///
+	data <- read.csv("_Rdatarcallcountrycode_in.csv", fileEncoding = "utf8", na.strings = ""); ///
 	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
 	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8", na = "")
 	
@@ -116,8 +116,10 @@ program define rcallcountrycode
 		error 601
 	}
 	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
-	cap erase _Rdatarcallcountrycode_in.csv
-	cap erase _Rdatarcallcountrycode_out.csv
+	if "`debug'" == "" {
+		cap erase _Rdatarcallcountrycode_in.csv
+		cap erase _Rdatarcallcountrycode_out.csv
+	}
 
 	* create marker if option is called
 	if "`marker'" != "" {
@@ -169,7 +171,4 @@ program define rcallcountrycode
 		sort `numobs'
 	}
 
-	cap erase "`Routput'"
-	cap erase "`origdata'"
-	
 end
