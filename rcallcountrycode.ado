@@ -1,4 +1,4 @@
-*! version 0.1.5 18feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.6 20feb2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
@@ -120,7 +120,7 @@ program define rcallcountrycode
 		cap erase "`origdata'"
 		error 601
 	}
-	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)
+	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)   case(preserve)
 	if "`debug'" == "" {
 		cap erase _Rdatarcallcountrycode_out.csv
 	}
