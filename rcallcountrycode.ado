@@ -132,7 +132,7 @@ program define rcallcountrycode
 	}
 
 	* store in dta file
-	save _Rdatarcallcountrycode_instata, replace
+	qui	save _Rdatarcallcountrycode_instata, replace
 
 	* show diagnostic if any non-matches
 	qui keep if mi(`generate') & !mi(`namevar')
