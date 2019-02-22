@@ -114,7 +114,6 @@ rcallcountrycode codelist
 ```
 
 ## To do:
-* Write help file
 * Provide better diagnostics for non-matches
 
 ## Author
