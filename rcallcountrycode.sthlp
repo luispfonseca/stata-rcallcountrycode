@@ -6,6 +6,7 @@
 {viewerjumpto "Syntax" "rcallcountrycode##syntax"}{...}
 {viewerjumpto "Description" "rcallcountrycode##description"}{...}
 {viewerjumpto "Examples" "rcallcountrycode##examples"}{...}
+
 {title:Title}
 
 {phang}
@@ -32,7 +33,7 @@
 
 {pstd}
 {cmd:rcallcountrycode} uses {browse "https://github.com/haghish/rcall":rcall} to interact with the R package {browse "https://github.com/vincentarelbundock/countrycode":countrycode}. It is a substitute for the {cmd:kountry} package from SSC.
-There are two main advantages of {cmd:rcallcountrycode}: 1) {browse "https://github.com/vincentarelbundock/countrycode":countrycode} is more up to date and has more functions than {cmd:kountry}; 2) it also faster when dealing with large datasets (but not for small ones). The main disadvantage is that it requires more dependencies, including having R installed. See {browse "https://github.com/luispfonseca/rcallcountrycode"} for more information.
+There are two main advantages of {cmd:rcallcountrycode}: 1) {browse "https://github.com/vincentarelbundock/countrycode":countrycode} is more up to date and has more functions than {cmd:kountry}; 2) it also faster when dealing with large datasets, though not with small ones. The main disadvantage is that it requires more dependencies, including having R installed. See {browse "https://github.com/luispfonseca/rcallcountrycode"} for more information.
 {p_end}
 
 {pstd}
@@ -62,4 +63,4 @@ I'd like to thank the authors of both packages. {browse "https://github.com/vinc
 
 {title:Website}
 
-{pstd}{cmd:rcallcountrycode} is maintained at {browse "https://github.com/luispfonseca/rcallcountrycode"}{p_end}
+{pstd}{cmd:rcallcountrycode} is maintained at {browse "https://github.com/luispfonseca/stata-rcallcountrycode"}{p_end}
