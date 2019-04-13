@@ -1,4 +1,4 @@
-*! version 0.1.6 20feb2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.7 13apr2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
@@ -120,7 +120,7 @@ program define rcallcountrycode
 		cap erase "`origdata'"
 		error 601
 	}
-	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1)   case(preserve)
+	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1) case(preserve)
 	if "`debug'" == "" {
 		cap erase _Rdatarcallcountrycode_out.csv
 	}
@@ -155,25 +155,24 @@ program define rcallcountrycode
 		tempvar numobs
 		gen `numobs' = _n 
 	}
-	qui `f'merge m:1 `namevar' using _Rdatarcallcountrycode_instata
+	tempvar merge_results
+	qui `f'merge m:1 `namevar' using _Rdatarcallcountrycode_instata, gen(`merge_results')
 
 	if "`debug'" == "" {
 		cap erase _Rdatarcallcountrycode_instata.dta
 	}
 
 	* check merging occurred as expected
-	cap assert _merge == 3 | (_merge == 1 & mi(`namevar')) // asserts proper matching: everything matched, except for empty inputs
+	cap assert `merge_results' == 3 | (`merge_results' == 1 & mi(`namevar')) // asserts proper matching: everything matched, except for empty inputs
 	if c(rc) == 9 { // more helpful message if assertion fails
 		di as error "Merging of data did not work as expected. Please provide a minimal working example at https://github.com/luispfonseca/stata-rcallcountrycode/issues"
 		di as error "There was a problem with these entries:"
-		tab `namevar' if !(_merge == 3 | (_merge == 1 & mi(`namevar')))
+		tab `namevar' if !(`merge_results' == 3 | (`merge_results' == 1 & mi(`namevar')))
 		di as error "Restoring original data"
 		use "`origdata'", clear
 		cap erase "`origdata'"
 		error 9
 	}
-
-	drop _merge
 
 	* restore original sort when calling merge
 	if "`f'" == "" {
