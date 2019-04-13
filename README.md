@@ -56,7 +56,8 @@ These steps should take care of all the dependencies automatically.
 2. Install this package:
 ```
 cap ado uninstall rcallcountrycode
-net install rcallcountrycode, from("https://raw.githubusercontent.com/luispfonseca/stata-rcallcountrycode/master/")
+local github "https://raw.githubusercontent.com"
+net install rcallcountrycode, from(`github'/luispfonseca/stata-rcallcountrycode/master/)
 ```
 3. Make sure you install all the dependencies
 
