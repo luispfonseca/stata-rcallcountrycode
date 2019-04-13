@@ -78,7 +78,7 @@ net install github, from("https://haghish.github.io/github/") replace
 gitget rcall
 ```
 
-Some commands from [`gtools`](https://github.com/mcaceresb/stata-gtools) by Mauricio Caceres Bravo and [`ftools`](https://github.com/sergiocorreia/ftools) by Sergio Correia are used to speed up the command when available. Follow the instructions in their pages to install them, especially if you are dealing with large datasets.
+Some commands from [`gtools`](https://github.com/mcaceresb/stata-gtools) by Mauricio Caceres Bravo and [`ftools`](https://github.com/sergiocorreia/ftools) by Sergio Correia are used to speed up the command when available, but are not required. Follow the instructions in their pages to install them, especially if you are dealing with large datasets.
 
 ## Usage
 ``` stata
