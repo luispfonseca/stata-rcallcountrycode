@@ -17,7 +17,7 @@
 This command uses [`rcall`](https://github.com/haghish/rcall) to call R's [`countrycode`](https://github.com/vincentarelbundock/countrycode). It is a substitute for the [`kountry`](http://fmwww.bc.edu/repec/bocode/k/kountry.html) package from SSC.
 
 I'd like to thank the authors of both packages:
-* [`countrycode`](https://github.com/vincentarelbundock/countrycode) was written by [Vincent Arel-Bundock](http://arelbundock.com/), [Nils Enevoldsen](https://nilsenevoldsen.com/), and [CJ Yetman](cjyetman.com).
+* [`countrycode`](https://github.com/vincentarelbundock/countrycode) was written by [Vincent Arel-Bundock](http://arelbundock.com/), [Nils Enevoldsen](https://nilsenevoldsen.com/), and [CJ Yetman](https://github.com/cjyetman).
 * [`rcall`](https://github.com/haghish) was written by [E. F. Haghish](http://www.haghish.com/)
 
 There are a few advantages to using `rcallcountrycode` relative to `kountry`:
