@@ -1,4 +1,4 @@
-*! version 0.1.7 13apr2019 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.8 13jun2019 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
@@ -99,7 +99,8 @@ program define rcallcountrycode
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
 	data <- read.csv("_Rdatarcallcountrycode_in.csv", fileEncoding = "utf8", na.strings = ""); ///
 	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
-	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8", na = "")
+	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8", na = ""); ///
+	rm(list=ls())
 	
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
