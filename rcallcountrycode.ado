@@ -99,16 +99,17 @@ program define rcallcountrycode
 	qui `g'duplicates drop
 	qui drop if mi(`namevar')
 
-	qui export delimited _Rdatarcallcountrycode_in.csv, replace
+	qui save _Rdatarcallcountrycode_in, replace
 
 	* call R
 	di as result "Calling R..."
 	cap noi rcall vanilla: ///
 	library(countrycode); ///
 	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
-	data <- read.csv("_Rdatarcallcountrycode_in.csv", fileEncoding = "utf8", na.strings = ""); ///
+	library(haven); ///
+	data <- haven::read_dta("_Rdatarcallcountrycode_in.dta"); ///
 	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
-	write.csv(data, file= "_Rdatarcallcountrycode_out.csv", row.names=FALSE, fileEncoding="utf8", na = ""); ///
+	haven::write_dta(data, "_Rdatarcallcountrycode_out.dta"); ///
 	rm(list=ls())
 	
 	if c(rc) {
@@ -119,20 +120,20 @@ program define rcallcountrycode
 		error 
 	}
 	if "`debug'" == "" {
-		cap erase _Rdatarcallcountrycode_in.csv
+		cap erase _Rdatarcallcountrycode_in.dta
 	}
 
-	* import the csv (moved away from st.load() due to issue #1 with encodings and accents)
-	capture confirm file _Rdatarcallcountrycode_out.csv
+	* import the output
+	capture confirm file _Rdatarcallcountrycode_out.dta
 	if c(rc) {
 		di as error "Restoring original data because file with the converted data was not found. Report to https://github.com/luispfonseca/stata-rcallcountrycode/issues"
 		use "`origdata'", clear
 		cap erase "`origdata'"
 		error 601
 	}
-	qui import delimited _Rdatarcallcountrycode_out.csv, clear encoding("utf-8") varnames(1) case(preserve)
+	use _Rdatarcallcountrycode_out, clear
 	if "`debug'" == "" {
-		cap erase _Rdatarcallcountrycode_out.csv
+		cap erase _Rdatarcallcountrycode_out.dta
 	}
 
 	* create marker if option is called
