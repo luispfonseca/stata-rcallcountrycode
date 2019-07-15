@@ -33,11 +33,18 @@ program define rcallcountrycode
 		error 103
 	}
 
-	* if codelist not passed, require passing of some of the options
-	if "`anything'" != "codelist" & ("`from'" == "" | "`to'" == "" | "`generate'" == "") {
-		di as error "options from(), to() and generate() are required"
-    	qui error 198
-	}
+	* default options
+	if "`anything'" != "codelist" {
+		if "`from'" == "" {
+			local from "country.name.en"
+		}
+		if "`to'" == "" {
+			local to "country.name.en"
+		}
+		if "`generate'" == "" {
+			local generate "std_name"
+		}
+	} 
 
 	* avoid naming conflicts
 	capture confirm new variable `generate'
