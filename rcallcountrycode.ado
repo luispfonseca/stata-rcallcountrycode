@@ -4,7 +4,27 @@
 program define rcallcountrycode
 	version 14
 	
-	syntax anything, [From(string) To(string) GENerate(string) Marker debug]
+	syntax anything, [From(string) To(string) GENerate(string) Marker debug CHECKrcall]
+
+	* confirm that rcall is installed only after all errors and conflicts checked
+	cap which rcall
+	if c(rc) {
+		di as error "The package Rcall is required for this package to work. Follow the instructions in https://github.com/haghish/rcall"
+		di as error "The following commands should work:"
+		di as error `"net install github, from("https://haghish.github.io/github/") replace"'
+		di as error "gitget rcall"
+		error 9
+	}
+	if "`checkrcall'" != "" { // additional checks of dependencies
+		rcall_check countrycode>=1.1.0 haven>=2.1.0, r(3.2) rcall(1.3.3)
+		// 1.1.0 is current version of country code. have not tested earlier versions
+		// 2.10 is what countrycode authors specify as the R version required
+		// 1.3.3 is the current version of rcall. have not tested earlier versions
+		// 2.1.0 is the version of haven when command was first written, seems to work
+		// 3.2 is the R version required by haven as of writing
+		di "rcall and dependencies seem to be working fine. You should be able to run rcallcountrycode without issues."
+		exit
+	}
 
 	* check only one variable is passed
 	local numargs : word count `anything'
@@ -41,24 +61,6 @@ program define rcallcountrycode
 			error 198
 		}
 	}
-
-
-	* confirm that rcall is installed only after all errors and conflicts checked
-	cap which rcall
-	if c(rc) {
-		di as error "The package Rcall is required for this package to work. Follow the instructions in https://github.com/haghish/rcall"
-		di as error "The following commands should work:"
-		di as error `"net install github, from("https://haghish.github.io/github/") replace"'
-		di as error "gitget rcall"
-		error 9
-	}
-	else { // additional checks of dependencies
-		rcall_check countrycode>=1.1.0, r(2.10) rcall(1.3.3)
-		// 1.1.0 is current version of country code. have not tested earlier versions
-		// 2.10 is what countrycode authors specify as the R version required
-		// 1.3.3 is the current version of rcall. have not tested earlier versions
-	}
-
 
 	* if passed, calling codelist from R. passed the same way as a variable to simplify syntax. inelegant (to do: move option to after the comma, requiring no variable passed)
 	if "`anything'" == "codelist" {
