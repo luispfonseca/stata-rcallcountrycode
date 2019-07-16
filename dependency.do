@@ -2,7 +2,7 @@
 * Installing rcall for Stata
 gitget rcall
 * Installing countrycode package in R
-rcall vanilla: 
+rcall vanilla: ///
 	install.packages("countrycode", repos="https://cran.us.r-project.org"); ///
 	install.packages("haven", repos="https://cran.us.r-project.org")
 * Final checks
