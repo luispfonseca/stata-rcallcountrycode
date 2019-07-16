@@ -36,13 +36,13 @@ program define rcallcountrycode
 	* default options
 	if "`anything'" != "codelist" {
 		if "`from'" == "" {
-			local from "country.name.en"
+			local from "country.name"
 		}
 		if "`to'" == "" {
-			local to "country.name.en"
+			local to "country.name"
 		}
 		if "`generate'" == "" {
-			local generate "std_name"
+			local generate "std_country"
 		}
 	} 
 

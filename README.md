@@ -1,15 +1,17 @@
 # RCALLCOUNTRYCODE: Call R's countrycode package from Stata using rcall
-- Current version: 0.1.8 13jun2019
+- Current version: 0.1.9 16jul2019
 - Contents: [`updates`](#updates) [`description`](#description) [`install`](#install) [`usage`](#usage) [`to do`](#to-do) [`author`](#author)
 
 -----------
 
 ## Updates
-* **0.1.8 13jun2019**  
+* **0.1.9 13jun2019**  
 (Since 0.1.0):
 	- bug fixes for encoding issues, diacritics
+	- handles moving of data with R package [`haven`](https://github.com/tidyverse/haven)
 	- improved error checking and handling
 	- adds codelist option to get available codes from `countrycode`
+	- set default arguments for options `from`, `to` and `gen`
 * **0.1.0 16feb2019**:
 	- first version of the command
 
@@ -100,8 +102,9 @@ input str20 country
 end
 compress
 
-* clean up the country name
-rcallcountrycode country, from(country.name) to(country.name) gen(countryname_en) marker
+* standardize country names stored in a variable named country (both are equivalent)
+rcallcountrycode country, gen(countryname_en)
+rcallcountrycode country, from(country.name) to(country.name) gen(countryname_en)
 
 * get the ISO2 country codes
 rcallcountrycode country, from(country.name) to(iso2c) gen(iso2code)
