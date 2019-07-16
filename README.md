@@ -69,9 +69,11 @@ For this command to work, you need the following:
 #### R
 You need to have R installed. You can download RStudio [here](https://www.rstudio.com/products/rstudio/download/), which will install R on your computer and give you a graphical interface. 
 
-If you are not using `github install` to install `rcallcountrycode`, you also need to install the [`countrycode`](https://github.com/vincentarelbundock/countrycode) in R. Follow the instructions in the page:
-
-> From the R console, type `install.packages("countrycode")`
+If you are not using `github install` to install `rcallcountrycode`, you also need to install the [`countrycode`](https://github.com/vincentarelbundock/countrycode) and [`haven`](https://github.com/tidyverse/haven) packages in R:
+```
+install.packages("countrycode")
+install.packages("haven")
+```
 
 #### Stata
 Install [`rcall`](https://github.com/haghish/rcall) following the instructions in the page. The following commands currently work:
