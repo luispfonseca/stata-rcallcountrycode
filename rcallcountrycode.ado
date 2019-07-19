@@ -81,8 +81,7 @@ program define rcallcountrycode
 	}
 
 	* store dataset to later merge, or restore if error
-	tempfile origdata
-	qui save "`origdata'", replace
+	preserve
 
 	* prepare list of unique names to send; use gduplicates if possible
 	di as result "Preparing data to send to R"
@@ -115,8 +114,7 @@ program define rcallcountrycode
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
 		di as error "Restoring original data"
-		use "`origdata'", clear
-		cap erase "`origdata'"
+		restore
 		error 
 	}
 	if "`debug'" == "" {
@@ -127,8 +125,7 @@ program define rcallcountrycode
 	capture confirm file _Rdatarcallcountrycode_out.dta
 	if c(rc) {
 		di as error "Restoring original data because file with the converted data was not found. Report to https://github.com/luispfonseca/stata-rcallcountrycode/issues"
-		use "`origdata'", clear
-		cap erase "`origdata'"
+		restore
 		error 601
 	}
 	use _Rdatarcallcountrycode_out, clear
@@ -164,7 +161,7 @@ program define rcallcountrycode
 
 	* merge results
 	di as result "Merging the data"
-	use "`origdata'", clear
+	restore
 
 	* use fmerge if it exists and dataset is large enough
 	cap which fmerge
@@ -189,8 +186,7 @@ program define rcallcountrycode
 		di as error "There was a problem with these entries:"
 		tab `namevar' if !(`merge_results' == 3 | (`merge_results' == 1 & mi(`namevar')))
 		di as error "Restoring original data"
-		use "`origdata'", clear
-		cap erase "`origdata'"
+		restore
 		error 9
 	}
 
@@ -198,7 +194,5 @@ program define rcallcountrycode
 	if "`f'" == "" {
 		sort `numobs'
 	}
-
-	cap erase "`origdata'"
 
 end
