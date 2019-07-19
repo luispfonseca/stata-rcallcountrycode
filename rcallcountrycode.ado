@@ -135,7 +135,7 @@ program define rcallcountrycode
 
 	* create marker if option is called
 	if "`marker'" != "" {
-		qui gen `markervar' = 0
+		qui gen byte `markervar' = 0
 		qui replace `markervar' = 1 if !mi(`namevar') & !mi(`generate')
 	}
 
