@@ -142,6 +142,14 @@ program define rcallcountrycode
 		qui replace `markervar' = 1 if !mi(`namevar') & !mi(`generate')
 	}
 
+	* imported dataset unfortunately changes string formatting. this is a workaround
+	if substr("`:type `generate''" , 1, 3) == "str" {
+		tempvar lengthgen
+		qui gen byte `lengthgen' = length(`generate')
+		qui sum `lengthgen'
+		format `generate' %`r(max)'s
+	}
+
 	* store in dta file
 	qui	save _Rdatarcallcountrycode_instata, replace
 
