@@ -142,10 +142,8 @@ program define rcallcountrycode
 	* imported dataset unfortunately changes string formatting. this is a workaround
 	cap destring `generate', replace
 	if substr("`:type `generate''" , 1, 3) == "str" {
-		tempvar lengthgen
-		qui gen byte `lengthgen' = length(`generate')
-		qui sum `lengthgen'
-		format `generate' %`r(max)'s
+		local str_length = substr("`:type `generate''" , 4, .)
+		format `generate' %`str_length's
 	}
 
 	* store in dta file
