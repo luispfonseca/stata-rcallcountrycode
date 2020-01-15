@@ -24,7 +24,7 @@ I'd like to thank the authors of both packages:
 
 There are a few advantages to using `rcallcountrycode` relative to `kountry`:
 
-* it gets the functionalities of [`countrycode`](https://github.com/vincentarelbundock/countrycode) for R, which might have broader and more up-to-date coverage on country names in different formats and languages
+* it gets the functionalities of [`countrycode`](https://github.com/vincentarelbundock/countrycode) for R, which has a broader and more up-to-date coverage on country names in different formats and languages
 * it scales well with the size of the dataset. See the benchmark ([Win7](benchmark/benchmark.log)/[Linux](benchmark/benchmark_linux.log)) for a comparison between `rcallcountrycode` and `kountry`. 
 	* Because it asks R to convert only the unique strings in the dataset (which should not exceed the number of countries in the world in most use cases), applying it to a dataset of 200 or 200000 observations makes little difference. The current version of `kountry` does not scale well in large datasets. 
 	* In the current benchmark (v0.1.5), I add repeated country names 2000 times to a list of 196 countries.  `rcallcountrycode`, which is much slower in the small dataset, only takes around 10%/50% (Win7/Linux) longer to run in the larger dataset. `kountry` takes 1000+ *times* longer than it does in the small dataset. 
