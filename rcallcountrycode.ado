@@ -3,7 +3,7 @@
 
 program define rcallcountrycode
 	version 14
-	
+
 	syntax anything, [From(string) To(string) GENerate(string) Marker debug CHECKrcall]
 
 	* confirm that rcall is installed only after all errors and conflicts checked
@@ -73,9 +73,9 @@ program define rcallcountrycode
 	if "`anything'" == "codelist" {
 		* call R
 		rcall vanilla: ///
-		library(countrycode); ///
-		codelisttext <- utils:::.getHelpFile(help(codelist)); ///
-		print(codelisttext)
+			library(countrycode); ///
+			codelisttext <- utils:::.getHelpFile(help(codelist)); ///
+			print(codelisttext)
 
 		exit
 	}
@@ -103,14 +103,14 @@ program define rcallcountrycode
 	* call R
 	di as result "Calling R..."
 	cap noi rcall vanilla: ///
-	library(countrycode); ///
-	print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
-	library(haven); ///
-	data <- haven::read_dta("_Rdatarcallcountrycode_in.dta"); ///
-	data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
-	haven::write_dta(data, "_Rdatarcallcountrycode_out.dta"); ///
-	rm(list=ls())
-	
+		library(countrycode); ///
+		print(paste0("Using countrycode package version: ", packageVersion("countrycode"))); ///
+		library(haven); ///
+		data <- haven::read_dta("_Rdatarcallcountrycode_in.dta"); ///
+		data\$`generate' <- countrycode(data\$`namevar', "`from'", "`to'"); ///
+		haven::write_dta(data, "_Rdatarcallcountrycode_out.dta"); ///
+		rm(list=ls())
+
 	if c(rc) {
 		di as error "Error when calling R. Check the error message above"
 		di as error "Restoring original data"
@@ -161,17 +161,12 @@ program define rcallcountrycode
 	di as result "Merging the data"
 	restore
 
-	* use fmerge if it exists and dataset is large enough
-	cap which fmerge
-	if !c(rc) & _N > 100000 {
-		local f "f"
-	}
-	else { // preserve sort order destroyed by merge, keep consistency with fmerge which does not sort
-		tempvar numobs
-		gen `numobs' = _n 
-	}
+	* preserve sort order destroyed by merge
+	tempvar numobs
+	gen `numobs' = _n 
+
 	tempvar merge_results
-	qui `f'merge m:1 `namevar' using _Rdatarcallcountrycode_instata, gen(`merge_results')
+	qui merge m:1 `namevar' using _Rdatarcallcountrycode_instata, gen(`merge_results')
 
 	if "`debug'" == "" {
 		cap erase _Rdatarcallcountrycode_instata.dta
@@ -189,8 +184,6 @@ program define rcallcountrycode
 	}
 
 	* restore original sort when calling merge
-	if "`f'" == "" {
-		sort `numobs'
-	}
+	sort `numobs'
 
 end
