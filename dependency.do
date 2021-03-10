@@ -1,6 +1,6 @@
 * Installing dependencies for stata-rcallcountrycode
 * Installing rcall for Stata
-gitget rcall
+github install haghish/rcall, stable
 * Installing countrycode package in R
 rcall vanilla: ///
 	install.packages("countrycode", repos="https://cran.us.r-project.org"); ///

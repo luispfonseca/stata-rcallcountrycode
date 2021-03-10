@@ -1,11 +1,11 @@
 # RCALLCOUNTRYCODE: Call R's countrycode package from Stata using rcall
-- Current version: 0.1.10 15jan2020
+- Current version: 0.1.11 10mar2021
 - Contents: [`updates`](#updates) [`description`](#description) [`install`](#install) [`usage`](#usage) [`to do`](#to-do) [`author`](#author)
 
 -----------
 
 ## Updates
-* **0.1.10 15jan2020**  
+* **0.1.11 10mar2021**  
 (Since 0.1.0):
 	- bug fixes for encoding issues, diacritics
 	- handles moving of data with R package [`haven`](https://github.com/tidyverse/haven)

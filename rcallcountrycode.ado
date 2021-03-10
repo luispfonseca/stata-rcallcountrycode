@@ -1,4 +1,4 @@
-*! version 0.1.10 15jan2020 Luís Fonseca, https://github.com/luispfonseca
+*! version 0.1.11 10mar2021 Luís Fonseca, https://github.com/luispfonseca
 *! -rcallcountrycode- Call R's countrycode package from Stata using rcall
 
 program define rcallcountrycode
